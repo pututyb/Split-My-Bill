@@ -8,14 +8,37 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var data = Connection()
+    @State private var addingNewActivity = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List {
+                ForEach(data.activity) { activities in
+                    NavigationLink {
+                        ActivityView(data: data, activity: activities)
+                    } label: {
+                        HStack {
+                            Text(activities.title)
+                        }
+                    }
+                }.onDelete(perform: remove)
+            }
+            .navigationTitle("Split Bill")
+            .toolbar {
+                Button {
+                    addingNewActivity.toggle()
+                }label: {
+                    Label("Add new activity", systemImage: "plus")
+                }
+            }
+        }.sheet(isPresented: $addingNewActivity) {
+            AddActivity(data: data)
         }
-        .padding()
+    }
+    
+    func remove(at offsets: IndexSet) {
+        data.activity.remove(atOffsets: offsets)
     }
 }
 
